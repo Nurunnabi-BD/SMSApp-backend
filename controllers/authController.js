@@ -246,10 +246,71 @@ const verifyOtp = async (req, res, next) => {
   }
 };
 
+// @desc    Social Login / Register (Google, Apple)
+// @route   POST /api/auth/social-login
+// @access  Public
+const socialLogin = async (req, res, next) => {
+  try {
+    const { name, email, provider, avatar } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide an email address.',
+      });
+    }
+
+    const cleanEmail = email.trim().toLowerCase();
+    let user = await User.findOne({ email: cleanEmail });
+
+    if (!user) {
+      // Auto-create new user in database
+      const defaultPassword = 'Social@' + Math.random().toString(36).slice(-8) + '2026!';
+      user = await User.create({
+        name: name ? name.trim() : 'Smart User',
+        email: cleanEmail,
+        password: defaultPassword,
+        role: 'patient',
+        avatar: avatar || '',
+        isVerified: true,
+      });
+    } else {
+      if (name && (!user.name || user.name === 'Smart User')) {
+        user.name = name.trim();
+        await user.save();
+      }
+    }
+
+    const token = generateToken(user._id, user.role);
+
+    res.status(200).json({
+      success: true,
+      message: `Signed in via ${provider || 'Social Login'} successfully`,
+      data: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        phone: user.phone || '',
+        avatar: user.avatar || '',
+        bloodGroup: user.bloodGroup || 'Unknown',
+        gender: user.gender || 'Unspecified',
+        dateOfBirth: user.dateOfBirth || '',
+        address: user.address || '',
+        isVerified: user.isVerified,
+        token,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   register,
   login,
   getMe,
   updateProfile,
   verifyOtp,
+  socialLogin,
 };

@@ -6,11 +6,13 @@ const {
   getMe,
   updateProfile,
   verifyOtp,
+  socialLogin,
 } = require('../controllers/authController');
 const { protect } = require('../middleware/authMiddleware');
 
 router.post('/register', register);
 router.post('/login', login);
+router.post('/social-login', socialLogin);
 router.post('/verify-otp', verifyOtp);
 router.get('/me', protect, getMe);
 router.put('/profile', protect, updateProfile);
