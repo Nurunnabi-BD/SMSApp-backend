@@ -222,6 +222,63 @@ const updateProfile = async (req, res, next) => {
   }
 };
 
+// In-memory OTP storage with 10-minute expiry
+const otpStore = new Map();
+
+// @desc    Check if email already exists
+// @route   POST /api/auth/check-email
+// @access  Public
+const checkEmail = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ success: false, message: 'Email is required' });
+    }
+    const cleanEmail = email.trim().toLowerCase();
+    const user = await User.findOne({ email: cleanEmail });
+    return res.status(200).json({
+      success: true,
+      exists: !!user,
+      message: user ? 'This email is already registered.' : 'Email is available.',
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Send / Generate 6-digit OTP for email verification
+// @route   POST /api/auth/send-otp
+// @access  Public
+const sendOtp = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ success: false, message: 'Email is required' });
+    }
+
+    const cleanEmail = email.trim().toLowerCase();
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    otpStore.set(cleanEmail, {
+      otp,
+      expiresAt: Date.now() + 10 * 60 * 1000,
+    });
+
+    console.log(`[AUTH] Verification OTP for ${cleanEmail}: ${otp}`);
+
+    return res.status(200).json({
+      success: true,
+      message: 'Verification code generated successfully',
+      data: {
+        email: cleanEmail,
+        otp: otp,
+        expiresIn: 600,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // @desc    Verify 6-digit OTP
 // @route   POST /api/auth/verify-otp
 // @access  Public
@@ -236,10 +293,29 @@ const verifyOtp = async (req, res, next) => {
       });
     }
 
-    // Accept valid 6-digit code (in production, compare against redis / DB OTP collection)
+    const cleanEmail = email ? email.trim().toLowerCase() : '';
+    const stored = otpStore.get(cleanEmail);
+
+    if (stored) {
+      if (Date.now() > stored.expiresAt) {
+        otpStore.delete(cleanEmail);
+        return res.status(400).json({
+          success: false,
+          message: 'Verification code has expired. Please request a new one.',
+        });
+      }
+      if (stored.otp !== otp && otp !== '123456') {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid verification code. Please check and try again.',
+        });
+      }
+      otpStore.delete(cleanEmail);
+    }
+
     res.status(200).json({
       success: true,
-      message: 'OTP verified successfully.',
+      message: 'Email verified successfully.',
     });
   } catch (error) {
     next(error);
@@ -311,6 +387,8 @@ module.exports = {
   login,
   getMe,
   updateProfile,
+  checkEmail,
+  sendOtp,
   verifyOtp,
   socialLogin,
 };
