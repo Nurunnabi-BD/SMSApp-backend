@@ -2,7 +2,7 @@ const User = require('../models/User');
 const DoctorProfile = require('../models/DoctorProfile');
 const Appointment = require('../models/Appointment');
 const Notification = require('../models/Notification');
-const { sendDoctorApprovalEmail } = require('../utils/emailService');
+const { sendDoctorApprovalEmail, sendDoctorRejectionEmail } = require('../utils/emailService');
 
 // @desc    Get admin platform analytics & statistics
 // @route   GET /api/admin/stats
@@ -64,7 +64,7 @@ const getAllDoctorsAdmin = async (req, res, next) => {
 // @access  Private (Admin only)
 const setDoctorApproval = async (req, res, next) => {
   try {
-    const { isApproved } = req.body;
+    const { isApproved, reason } = req.body;
 
     let doctorProfile = await DoctorProfile.findById(req.params.id).populate('user', 'name email');
     if (!doctorProfile) {
@@ -78,16 +78,30 @@ const setDoctorApproval = async (req, res, next) => {
       });
     }
 
-    doctorProfile.isApproved = isApproved;
+    const wasAlreadyApproved = doctorProfile.isApproved === true;
+
+    if (isApproved) {
+      doctorProfile.isApproved = true;
+      doctorProfile.status = 'approved';
+      doctorProfile.approvedAt = new Date();
+      doctorProfile.approvedBy = req.user ? req.user._id : null;
+      doctorProfile.rejectionReason = '';
+    } else {
+      doctorProfile.isApproved = false;
+      doctorProfile.status = 'rejected';
+      doctorProfile.rejectionReason = reason || 'Incomplete credential verification or unverified BMDC license.';
+    }
+
     await doctorProfile.save();
 
-    // If accepted/approved by admin, create notification and send confirmation email
-    if (isApproved && doctorProfile.user) {
+    // Prevent duplicate emails if already approved
+    if (isApproved && doctorProfile.user && !wasAlreadyApproved) {
+      // 1. In-App Notification
       try {
         await Notification.create({
           recipient: doctorProfile.user._id,
           title: '🎉 Doctor Profile Approved!',
-          message: `Congratulations Dr. ${doctorProfile.user.name}, your doctor credentials have been approved by the admin! You can now accept patient appointments and consult online.`,
+          message: `Congratulations Dr. ${doctorProfile.user.name}, your doctor account on Smart Medical Services Platform has been approved by our administration. You can now accept patient appointments and consult online.`,
           type: 'approval',
           relatedId: doctorProfile._id,
         });
@@ -95,6 +109,7 @@ const setDoctorApproval = async (req, res, next) => {
         console.error('Failed to create doctor approval notification:', notifErr.message);
       }
 
+      // 2. Email Notification
       try {
         await sendDoctorApprovalEmail({
           toEmail: doctorProfile.user.email,
@@ -105,22 +120,35 @@ const setDoctorApproval = async (req, res, next) => {
       } catch (emailErr) {
         console.error('Failed to send doctor approval email:', emailErr.message);
       }
-    } else if (doctorProfile.user) {
+    } else if (!isApproved && doctorProfile.user) {
+      const rejectionReason = reason || 'Incomplete credential verification or unverified BMDC license.';
+      // 1. In-App Notification
       try {
         await Notification.create({
           recipient: doctorProfile.user._id,
-          title: 'Doctor Account Status Update',
-          message: `Dear Dr. ${doctorProfile.user.name}, your doctor profile status has been set to pending/suspended by administration.`,
+          title: 'Doctor Application Rejected',
+          message: `Dear Dr. ${doctorProfile.user.name}, your doctor application has been rejected. Reason: ${rejectionReason}`,
           type: 'status_change',
           relatedId: doctorProfile._id,
         });
       } catch (notifErr) {}
+
+      // 2. Rejection Email
+      try {
+        await sendDoctorRejectionEmail({
+          toEmail: doctorProfile.user.email,
+          doctorName: doctorProfile.user.name,
+          reason: rejectionReason,
+        });
+      } catch (emailErr) {
+        console.error('Failed to send doctor rejection email:', emailErr.message);
+      }
     }
 
     res.status(200).json({
       success: true,
       message: `Doctor ${doctorProfile.user?.name || ''} has been ${
-        isApproved ? 'approved' : 'suspended/rejected'
+        isApproved ? 'approved' : 'rejected'
       }. Notification and email dispatched.`,
       data: doctorProfile,
     });

@@ -64,9 +64,27 @@ const doctorProfileSchema = new mongoose.Schema(
         '05:00 PM',
       ],
     },
+    status: {
+      type: String,
+      enum: ['pending', 'approved', 'rejected'],
+      default: 'pending',
+    },
     isApproved: {
       type: Boolean,
-      default: true,
+      default: false,
+    },
+    approvedAt: {
+      type: Date,
+      default: null,
+    },
+    approvedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      default: null,
+    },
+    rejectionReason: {
+      type: String,
+      default: '',
     },
     licenseNumber: {
       type: String,

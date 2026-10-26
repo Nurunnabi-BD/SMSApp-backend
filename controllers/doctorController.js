@@ -330,6 +330,25 @@ const getDoctorNotifications = async (req, res, next) => {
   }
 };
 
+// @desc    Mark doctor notification as read
+// @route   PUT /api/doctors/notifications/:id/read
+// @access  Private (Doctor only)
+const markDoctorNotificationAsRead = async (req, res, next) => {
+  try {
+    const notification = await Notification.findOneAndUpdate(
+      { _id: req.params.id, recipient: req.user._id },
+      { isRead: true },
+      { new: true }
+    );
+    if (!notification) {
+      return res.status(404).json({ success: false, message: 'Notification not found' });
+    }
+    res.status(200).json({ success: true, data: notification });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getDoctors,
   getDoctorById,
@@ -341,4 +360,5 @@ module.exports = {
   deleteAssistant,
   getAssignedDoctor,
   getDoctorNotifications,
+  markDoctorNotificationAsRead,
 };

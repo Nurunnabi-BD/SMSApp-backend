@@ -38,6 +38,14 @@ const bookAppointment = async (req, res, next) => {
       });
     }
 
+    // Verify doctor is approved
+    if (doctorProfile && !doctorProfile.isApproved) {
+      return res.status(400).json({
+        success: false,
+        message: 'This doctor is not yet verified or approved by administration.',
+      });
+    }
+
     // Create Appointment
     const appointment = await Appointment.create({
       patient: req.user._id,

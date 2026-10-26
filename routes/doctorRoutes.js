@@ -11,6 +11,7 @@ const {
   deleteAssistant,
   getAssignedDoctor,
   getDoctorNotifications,
+  markDoctorNotificationAsRead,
 } = require('../controllers/doctorController');
 const { protect } = require('../middleware/authMiddleware');
 const { authorize } = require('../middleware/roleMiddleware');
@@ -18,6 +19,7 @@ const { authorize } = require('../middleware/roleMiddleware');
 router.get('/', getDoctors);
 router.get('/specializations', getSpecializations);
 router.get('/notifications', protect, authorize('doctor'), getDoctorNotifications);
+router.put('/notifications/:id/read', protect, authorize('doctor'), markDoctorNotificationAsRead);
 router.get('/patient-registry', protect, authorize('doctor'), getDoctorPatientRegistry);
 router.put('/profile', protect, authorize('doctor'), updateDoctorProfile);
 

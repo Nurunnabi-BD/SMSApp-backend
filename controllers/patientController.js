@@ -52,7 +52,7 @@ const getNotifications = async (req, res, next) => {
   try {
     const notifications = await Notification.find({ recipient: req.user._id })
       .sort({ createdAt: -1 })
-      .limit(20);
+      .limit(30);
 
     res.status(200).json({
       success: true,
@@ -64,7 +64,27 @@ const getNotifications = async (req, res, next) => {
   }
 };
 
+// @desc    Mark notification as read
+// @route   PUT /api/patients/notifications/:id/read
+// @access  Private
+const markNotificationAsRead = async (req, res, next) => {
+  try {
+    const notification = await Notification.findOneAndUpdate(
+      { _id: req.params.id, recipient: req.user._id },
+      { isRead: true },
+      { new: true }
+    );
+    if (!notification) {
+      return res.status(404).json({ success: false, message: 'Notification not found' });
+    }
+    res.status(200).json({ success: true, data: notification });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getPatientDashboard,
   getNotifications,
+  markNotificationAsRead,
 };
