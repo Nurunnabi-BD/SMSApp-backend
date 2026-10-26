@@ -4,6 +4,7 @@ const {
   bookAppointment,
   getMyAppointments,
   getDoctorAppointments,
+  getAllAppointmentsAdmin,
   updateAppointmentStatus,
   cancelAppointment,
 } = require('../controllers/appointmentController');
@@ -13,6 +14,7 @@ const { authorize } = require('../middleware/roleMiddleware');
 router.post('/', protect, authorize('patient'), bookAppointment);
 router.get('/my-appointments', protect, authorize('patient'), getMyAppointments);
 router.get('/me', protect, authorize('patient'), getMyAppointments);
+router.get('/all', protect, authorize('admin'), getAllAppointmentsAdmin);
 router.get('/doctor-appointments', protect, authorize('doctor', 'assistant'), getDoctorAppointments);
 router.put('/:id/status', protect, authorize('doctor', 'admin', 'assistant'), updateAppointmentStatus);
 router.put('/:id/cancel', protect, authorize('patient'), cancelAppointment);

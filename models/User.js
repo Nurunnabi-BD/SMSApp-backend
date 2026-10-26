@@ -66,6 +66,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: '',
     },
+    emergencyContact: {
+      type: String,
+      default: '',
+    },
     isVerified: {
       type: Boolean,
       default: true,

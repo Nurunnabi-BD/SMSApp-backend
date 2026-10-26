@@ -279,10 +279,31 @@ const cancelAppointment = async (req, res, next) => {
   }
 };
 
+// @desc    Get all platform appointments (Admin only)
+// @route   GET /api/appointments/all
+// @access  Private (Admin only)
+const getAllAppointmentsAdmin = async (req, res, next) => {
+  try {
+    const appointments = await Appointment.find()
+      .populate('patient', 'name email phone avatar bloodGroup gender address emergencyContact')
+      .populate('doctor', 'name email phone avatar')
+      .sort({ appointmentDate: -1, createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      count: appointments.length,
+      data: appointments,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   bookAppointment,
   getMyAppointments,
   getDoctorAppointments,
+  getAllAppointmentsAdmin,
   updateAppointmentStatus,
   cancelAppointment,
 };

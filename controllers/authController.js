@@ -216,7 +216,7 @@ const getMe = async (req, res, next) => {
 // @access  Private (Protected)
 const updateProfile = async (req, res, next) => {
   try {
-    const { name, phone, bloodGroup, gender, dateOfBirth, address, avatar } = req.body;
+    const { name, phone, bloodGroup, gender, dateOfBirth, address, avatar, emergencyContact } = req.body;
 
     const user = await User.findById(req.user._id);
 
@@ -231,6 +231,7 @@ const updateProfile = async (req, res, next) => {
     if (dateOfBirth !== undefined) user.dateOfBirth = dateOfBirth;
     if (address !== undefined) user.address = address;
     if (avatar !== undefined) user.avatar = avatar;
+    if (emergencyContact !== undefined) user.emergencyContact = emergencyContact;
 
     const updatedUser = await user.save();
 
