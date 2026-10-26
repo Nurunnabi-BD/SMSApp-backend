@@ -9,6 +9,7 @@ const User = require('../models/User');
 const getUserConversations = async (req, res, next) => {
   try {
     const userId = req.user._id;
+    const isPatient = req.user.role === 'patient';
 
     const conversations = await Conversation.find({
       $or: [{ patient: userId }, { doctor: userId }],
@@ -17,10 +18,22 @@ const getUserConversations = async (req, res, next) => {
       .populate('doctor', 'name email phone avatar')
       .sort({ lastMessageAt: -1 });
 
+    let totalUnread = 0;
+    const formatted = conversations.map(c => {
+      const convObj = c.toObject();
+      const myUnread = isPatient
+        ? (c.unreadCountPatient || 0)
+        : (c.unreadCountDoctor || 0);
+      convObj.myUnreadCount = myUnread;
+      totalUnread += myUnread;
+      return convObj;
+    });
+
     res.status(200).json({
       success: true,
-      count: conversations.length,
-      data: conversations,
+      count: formatted.length,
+      totalUnread,
+      data: formatted,
     });
   } catch (error) {
     next(error);

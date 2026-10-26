@@ -54,9 +54,15 @@ const getNotifications = async (req, res, next) => {
       .sort({ createdAt: -1 })
       .limit(30);
 
+    const unreadCount = await Notification.countDocuments({
+      recipient: req.user._id,
+      isRead: false,
+    });
+
     res.status(200).json({
       success: true,
       count: notifications.length,
+      unreadCount,
       data: notifications,
     });
   } catch (error) {
@@ -83,8 +89,24 @@ const markNotificationAsRead = async (req, res, next) => {
   }
 };
 
+// @desc    Mark all notifications as read
+// @route   PUT /api/patients/notifications/read-all
+// @access  Private
+const markAllNotificationsAsRead = async (req, res, next) => {
+  try {
+    await Notification.updateMany(
+      { recipient: req.user._id, isRead: false },
+      { isRead: true }
+    );
+    res.status(200).json({ success: true, message: 'All notifications marked as read' });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getPatientDashboard,
   getNotifications,
   markNotificationAsRead,
+  markAllNotificationsAsRead,
 };
