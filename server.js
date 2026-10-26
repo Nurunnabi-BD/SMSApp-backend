@@ -14,6 +14,7 @@ const adminRoutes = require('./routes/adminRoutes');
 const ambulanceRoutes = require('./routes/ambulanceRoutes');
 const recordRoutes = require('./routes/recordRoutes');
 const conversationRoutes = require('./routes/conversationRoutes');
+const medicineRoutes = require('./routes/medicineRoutes');
 
 // Load environment variables
 dotenv.config();
@@ -51,6 +52,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/ambulances', ambulanceRoutes);
 app.use('/api/records', recordRoutes);
 app.use('/api/conversations', conversationRoutes);
+app.use('/api/medicines', medicineRoutes);
 
 // Error Handling Middleware
 app.use(notFound);
