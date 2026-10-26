@@ -287,6 +287,7 @@ const getAllAppointmentsAdmin = async (req, res, next) => {
     const appointments = await Appointment.find()
       .populate('patient', 'name email phone avatar bloodGroup gender address emergencyContact')
       .populate('doctor', 'name email phone avatar')
+      .populate('doctorProfile', 'specialization hospital consultationFee')
       .sort({ appointmentDate: -1, createdAt: -1 });
 
     res.status(200).json({
