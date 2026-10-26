@@ -46,6 +46,21 @@ const bookAppointment = async (req, res, next) => {
       });
     }
 
+    // Prevent double booking of same doctor for same date & time slot
+    const existingBooking = await Appointment.findOne({
+      doctor: doctorUserId,
+      appointmentDate: new Date(appointmentDate),
+      appointmentTime,
+      status: { $in: ['pending', 'confirmed'] },
+    });
+
+    if (existingBooking) {
+      return res.status(409).json({
+        success: false,
+        message: 'This doctor is already booked for this time slot. Please choose another slot.',
+      });
+    }
+
     // Create Appointment
     const appointment = await Appointment.create({
       patient: req.user._id,
