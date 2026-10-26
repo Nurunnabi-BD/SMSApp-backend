@@ -1,6 +1,8 @@
 const User = require('../models/User');
 const DoctorProfile = require('../models/DoctorProfile');
 const Appointment = require('../models/Appointment');
+const Notification = require('../models/Notification');
+const { sendDoctorApprovalEmail } = require('../utils/emailService');
 
 // @desc    Get admin platform analytics & statistics
 // @route   GET /api/admin/stats
@@ -64,7 +66,10 @@ const setDoctorApproval = async (req, res, next) => {
   try {
     const { isApproved } = req.body;
 
-    const doctorProfile = await DoctorProfile.findById(req.params.id).populate('user', 'name email');
+    let doctorProfile = await DoctorProfile.findById(req.params.id).populate('user', 'name email');
+    if (!doctorProfile) {
+      doctorProfile = await DoctorProfile.findOne({ user: req.params.id }).populate('user', 'name email');
+    }
 
     if (!doctorProfile) {
       return res.status(404).json({
@@ -76,11 +81,47 @@ const setDoctorApproval = async (req, res, next) => {
     doctorProfile.isApproved = isApproved;
     await doctorProfile.save();
 
+    // If accepted/approved by admin, create notification and send confirmation email
+    if (isApproved && doctorProfile.user) {
+      try {
+        await Notification.create({
+          recipient: doctorProfile.user._id,
+          title: '🎉 Doctor Profile Approved!',
+          message: `Congratulations Dr. ${doctorProfile.user.name}, your doctor credentials have been approved by the admin! You can now accept patient appointments and consult online.`,
+          type: 'approval',
+          relatedId: doctorProfile._id,
+        });
+      } catch (notifErr) {
+        console.error('Failed to create doctor approval notification:', notifErr.message);
+      }
+
+      try {
+        await sendDoctorApprovalEmail({
+          toEmail: doctorProfile.user.email,
+          doctorName: doctorProfile.user.name,
+          licenseNumber: doctorProfile.licenseNumber,
+          hospital: doctorProfile.hospital,
+        });
+      } catch (emailErr) {
+        console.error('Failed to send doctor approval email:', emailErr.message);
+      }
+    } else if (doctorProfile.user) {
+      try {
+        await Notification.create({
+          recipient: doctorProfile.user._id,
+          title: 'Doctor Account Status Update',
+          message: `Dear Dr. ${doctorProfile.user.name}, your doctor profile status has been set to pending/suspended by administration.`,
+          type: 'status_change',
+          relatedId: doctorProfile._id,
+        });
+      } catch (notifErr) {}
+    }
+
     res.status(200).json({
       success: true,
       message: `Doctor ${doctorProfile.user?.name || ''} has been ${
         isApproved ? 'approved' : 'suspended/rejected'
-      }.`,
+      }. Notification and email dispatched.`,
       data: doctorProfile,
     });
   } catch (error) {

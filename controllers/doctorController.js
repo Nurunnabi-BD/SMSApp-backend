@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const DoctorProfile = require('../models/DoctorProfile');
 const Appointment = require('../models/Appointment');
+const Notification = require('../models/Notification');
 
 // @desc    Get all active & approved doctors with filtering & search
 // @route   GET /api/doctors
@@ -310,6 +311,25 @@ const getAssignedDoctor = async (req, res, next) => {
   }
 };
 
+// @desc    Get doctor notifications
+// @route   GET /api/doctors/notifications
+// @access  Private (Doctor only)
+const getDoctorNotifications = async (req, res, next) => {
+  try {
+    const notifications = await Notification.find({ recipient: req.user._id })
+      .sort({ createdAt: -1 })
+      .limit(30);
+
+    res.status(200).json({
+      success: true,
+      count: notifications.length,
+      data: notifications,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getDoctors,
   getDoctorById,
@@ -320,4 +340,5 @@ module.exports = {
   getDoctorAssistants,
   deleteAssistant,
   getAssignedDoctor,
+  getDoctorNotifications,
 };

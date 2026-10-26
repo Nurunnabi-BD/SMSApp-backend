@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const DoctorProfile = require('../models/DoctorProfile');
+const Notification = require('../models/Notification');
 const generateToken = require('../utils/generateToken');
 
 // @desc    Register a new user (Patient, Doctor, Admin)
@@ -63,8 +64,29 @@ const register = async (req, res, next) => {
         licenseNumber: licenseNumber || 'BMDC-' + Math.floor(10000 + Math.random() * 90000),
         certificateImage: certificateImage || '',
         certificateFormat: certificateFormat || 'JPG',
-        isApproved: true,
+        isApproved: false, // Requires admin review and approval
       });
+
+      // Notification for Doctor pending review
+      try {
+        await Notification.create({
+          recipient: user._id,
+          title: 'ডাক্তার রেজিস্ট্রেশন সফল',
+          message: 'আপনার ডাক্তার প্রোফাইলটি তৈরি হয়েছে। অ্যাডমিন কর্তৃক ভেরিফিকেশন ও অনুমোদনের পর আপনি ইমেইল ও নোটিফিকেশন পাবেন।',
+          type: 'system',
+          relatedId: doctorProfile._id,
+        });
+      } catch (_) {}
+    } else {
+      // Welcome Notification for Patient
+      try {
+        await Notification.create({
+          recipient: user._id,
+          title: 'Welcome to Smart Medical!',
+          message: `Hello ${user.name}, welcome to Smart Medical Platform! Find doctors and book appointments seamlessly.`,
+          type: 'system',
+        });
+      } catch (_) {}
     }
 
     const token = generateToken(user._id, user.role);
