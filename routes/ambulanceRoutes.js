@@ -2,6 +2,12 @@ const express = require('express');
 const router = express.Router();
 const {
   getAmbulances,
+  getNearbyAmbulances,
+  getNearbyHospitals,
+  createAmbulanceRequest,
+  getMyAmbulanceRequests,
+  getAmbulanceRequestById,
+  updateAmbulanceRequestStatus,
   addAmbulance,
   updateAmbulance,
   deleteAmbulance,
@@ -9,10 +15,18 @@ const {
 const { protect } = require('../middleware/authMiddleware');
 const { authorize } = require('../middleware/roleMiddleware');
 
-// Public route to view ambulances and call
+// Public & Patient GPS Radar Endpoints
 router.get('/', getAmbulances);
+router.get('/nearby', getNearbyAmbulances);
+router.get('/nearby-hospitals', getNearbyHospitals);
 
-// Admin-only management routes
+// Patient Ambulance Booking & Request Tracking
+router.post('/request', protect, createAmbulanceRequest);
+router.get('/my-requests', protect, getMyAmbulanceRequests);
+router.get('/requests/:id', protect, getAmbulanceRequestById);
+router.patch('/requests/:id/status', protect, updateAmbulanceRequestStatus);
+
+// Admin-only Fleet Management
 router.post('/', protect, authorize('admin'), addAmbulance);
 router.put('/:id', protect, authorize('admin'), updateAmbulance);
 router.delete('/:id', protect, authorize('admin'), deleteAmbulance);
