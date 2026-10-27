@@ -17,8 +17,130 @@ const calculateHaversineDistance = (lat1, lon1, lat2, lon2) => {
   return Math.round(R * c * 10) / 10; // Round to 1 decimal place
 };
 
-// Default seed verified ambulance providers if collection is empty
+// Default seed verified ambulance providers (Nationwide & Regional Coverage)
 const defaultVerifiedAmbulances = [
+  // --- Chittagong & Chandanaish (BGC Trust Medical College Area) ---
+  {
+    name: 'BGC Trust Medical College Emergency Ambulance',
+    phone: '+8801819665544',
+    driverName: 'Abul Kalam',
+    address: 'BGC Biddyanagar, Chandanaish, Chattogram',
+    serviceArea: 'Chandanaish, Patiya, Dohazari, Satkania',
+    type: 'Advanced Life Support (ALS)',
+    vehicleNo: 'Chatto Metro-CHA 11-2045',
+    fare: '৳ 2,000',
+    facilities: ['Oxygen Therapy', 'Cardiac Monitor', 'Emergency Stretcher', 'Paramedic'],
+    isAvailable: true,
+    isVerified: true,
+    rating: 4.9,
+    totalTrips: 156,
+    latitude: 22.2148,
+    longitude: 91.9705,
+  },
+  {
+    name: 'Chandanaish Upazila Health Complex Ambulance',
+    phone: '+8801730324750',
+    driverName: 'Nurul Huda',
+    address: 'Hospital Road, Chandanaish, Chattogram',
+    serviceArea: 'Chandanaish, Joara, Barkal, Dohazari',
+    type: 'Basic Life Support (BLS)',
+    vehicleNo: 'Chatto Metro-CHA 09-1188',
+    fare: '৳ 1,500',
+    facilities: ['Emergency Stretcher', 'Oxygen Cylinder', 'First Aid Kit'],
+    isAvailable: true,
+    isVerified: true,
+    rating: 4.7,
+    totalTrips: 210,
+    latitude: 22.2215,
+    longitude: 92.0182,
+  },
+  {
+    name: 'Chittagong Medical College (CMCH) Rapid Ambulance',
+    phone: '+8801711728833',
+    driverName: 'Kamrul Ahsan',
+    address: 'KB Fazlul Kader Road, Panchlaish, Chattogram',
+    serviceArea: 'Chattogram Metropolitan & Greater Chattogram',
+    type: 'Basic Life Support (BLS)',
+    vehicleNo: 'Chatto Metro-CHA 14-8832',
+    fare: '৳ 1,800',
+    facilities: ['Emergency Stretcher', 'High-Flow Oxygen', 'Trained Rescuer'],
+    isAvailable: true,
+    isVerified: true,
+    rating: 4.8,
+    totalTrips: 340,
+    latitude: 22.3592,
+    longitude: 91.8285,
+  },
+  {
+    name: 'Evercare Hospital Chattogram Mobile ICU',
+    phone: '+8801708123456',
+    driverName: 'Morshed Alam',
+    address: 'Plot H1, Ananya R/A, Oxygen Mor, Chattogram',
+    serviceArea: 'Chattogram City, Hathazari, Raozan, Patiya',
+    type: 'ICU Ambulance',
+    vehicleNo: 'Chatto Metro-CHA 16-7741',
+    fare: '৳ 3,500',
+    facilities: ['ICU Ventilator', 'Multi-Para Monitor', 'Defibrillator', 'Doctor Onboard'],
+    isAvailable: true,
+    isVerified: true,
+    rating: 4.9,
+    totalTrips: 182,
+    latitude: 22.3831,
+    longitude: 91.8442,
+  },
+  {
+    name: 'Parkview Hospital Emergency Cardiac Fleet',
+    phone: '+8801976022334',
+    driverName: 'Shahadat Hossain',
+    address: '94/103 Katalganj Road, Panchlaish, Chattogram',
+    serviceArea: 'GEC, Chawkbazar, Muradpur, Agrabad',
+    type: 'Advanced Life Support (ALS)',
+    vehicleNo: 'Chatto Metro-CHA 12-4419',
+    fare: '৳ 2,500',
+    facilities: ['AED Defibrillator', 'Cardiac Monitor', 'Trained Paramedic'],
+    isAvailable: true,
+    isVerified: true,
+    rating: 4.8,
+    totalTrips: 195,
+    latitude: 22.3584,
+    longitude: 91.8219,
+  },
+  {
+    name: 'CSCR Hospital Critical Care Unit',
+    phone: '+8801819313233',
+    driverName: 'Mahbubur Rahman',
+    address: '1675/A O.R. Nizam Road, Golpahar, Chattogram',
+    serviceArea: 'Nasirabad, Khulshi, Agrabad, Halishahar',
+    type: 'ICU Ambulance',
+    vehicleNo: 'Chatto Metro-CHA 15-9921',
+    fare: '৳ 2,800',
+    facilities: ['Portable Ventilator', 'Suction Machine', 'Emergency Drugs'],
+    isAvailable: true,
+    isVerified: true,
+    rating: 4.8,
+    totalTrips: 160,
+    latitude: 22.3615,
+    longitude: 91.8256,
+  },
+  {
+    name: 'Red Crescent Emergency Ambulance Chattogram',
+    phone: '+8801817722119',
+    driverName: 'Faruk Ahmed',
+    address: 'Anderkilla, Kotwali, Chattogram',
+    serviceArea: 'Kotwali, Sadarghat, Patenga, Port Area',
+    type: 'Patient Transport',
+    vehicleNo: 'Chatto Metro-CHA 08-3312',
+    fare: '৳ 1,200',
+    facilities: ['First Aid', 'Oxygen Tank', 'Wheelchair Support'],
+    isAvailable: true,
+    isVerified: true,
+    rating: 4.7,
+    totalTrips: 275,
+    latitude: 22.3382,
+    longitude: 91.8374,
+  },
+
+  // --- Dhaka Metropolitan Area ---
   {
     name: 'Square Hospital Emergency Cardiac Unit',
     phone: '+8801713377775',
@@ -122,23 +244,6 @@ const defaultVerifiedAmbulances = [
     longitude: 90.3828,
   },
   {
-    name: 'National Heart Foundation Cardiac Fleet',
-    phone: '+8801712334455',
-    driverName: 'Abdul Mannan',
-    address: 'Plot 4, Section 2, Mirpur, Dhaka',
-    serviceArea: 'Mirpur, Pallabi, Kazipara, Shewrapara',
-    type: 'ICU Ambulance',
-    vehicleNo: 'Dhaka Metro-CHA 10-6621',
-    fare: '৳ 3,800',
-    facilities: ['Cardiac Monitor', 'Defibrillator', 'Ventilator', 'Doctor Onboard'],
-    isAvailable: true,
-    isVerified: true,
-    rating: 4.8,
-    totalTrips: 175,
-    latitude: 23.8041,
-    longitude: 90.3601,
-  },
-  {
     name: 'Popular Diagnostic Center Patient Transit',
     phone: '+8801912334455',
     driverName: 'Masum Billah',
@@ -157,8 +262,77 @@ const defaultVerifiedAmbulances = [
   },
 ];
 
-// Curated verified hospitals directory for Dhaka
+// Curated verified hospitals directory (Chittagong & Dhaka Regions)
 const verifiedHospitalsDirectory = [
+  // --- Chittagong / Chandanaish Area ---
+  {
+    name: 'BGC Trust Medical College & Hospital',
+    address: 'BGC Biddyanagar, Kanchan Nagar, Chandanaish, Chattogram',
+    phone: '+880 1819-665544',
+    emergencyPhone: '01819665544',
+    latitude: 22.2148,
+    longitude: 91.9705,
+    openNow: true,
+    type: 'Medical College & 500-Bed Tertiary Teaching Hospital',
+    rating: 4.8,
+  },
+  {
+    name: 'Chandanaish Upazila Health Complex',
+    address: 'Hospital Road, Chandanaish, Chattogram',
+    phone: '+880 1730-324750',
+    emergencyPhone: '01730324750',
+    latitude: 22.2215,
+    longitude: 92.0182,
+    openNow: true,
+    type: 'Government Upazila Emergency Hospital (24/7)',
+    rating: 4.5,
+  },
+  {
+    name: 'Chittagong Medical College Hospital (CMCH)',
+    address: '57 K.B. Fazlul Kader Road, Panchlaish, Chattogram 4203',
+    phone: '+880 31-619400',
+    emergencyPhone: '+880 31-619400',
+    latitude: 22.3592,
+    longitude: 91.8285,
+    openNow: true,
+    type: 'Premier Government Regional Tertiary Referral Hospital',
+    rating: 4.7,
+  },
+  {
+    name: 'Evercare Hospital Chattogram',
+    address: 'Plot H1, Ananya Residential Area, Oxygen, Chattogram 4337',
+    phone: '+880 31-380300',
+    emergencyPhone: '10678',
+    latitude: 22.3831,
+    longitude: 91.8442,
+    openNow: true,
+    type: 'JCI Accredited Multi-Disciplinary Super Specialty Hospital',
+    rating: 4.9,
+  },
+  {
+    name: 'Parkview Hospital',
+    address: '94/103 Katalganj Road, Panchlaish, Chattogram',
+    phone: '+880 31-655511',
+    emergencyPhone: '01976022334',
+    latitude: 22.3584,
+    longitude: 91.8219,
+    openNow: true,
+    type: 'Specialized Trauma & Emergency Care Hospital',
+    rating: 4.8,
+  },
+  {
+    name: 'CSCR (Centre for Specialized Care & Research)',
+    address: '1675/A O.R. Nizam Road, Golpahar, Chattogram',
+    phone: '+880 31-656565',
+    emergencyPhone: '01819313233',
+    latitude: 22.3615,
+    longitude: 91.8256,
+    openNow: true,
+    type: 'Cardiovascular, ICU & Emergency Specialized Center',
+    rating: 4.7,
+  },
+
+  // --- Dhaka Area ---
   {
     name: 'Square Hospitals Ltd.',
     address: '18/F Bir Uttam Qazi Nuruzzaman Sarak, Panthapath, Dhaka 1205',
@@ -287,57 +461,74 @@ const getNearbyAmbulances = async (req, res, next) => {
       });
     }
 
-    // Auto-seed if collection empty
+    // Auto-seed or synchronize full nationwide verified fleet if not present
     const count = await Ambulance.countDocuments();
-    if (count === 0) {
-      await Ambulance.insertMany(defaultVerifiedAmbulances);
+    if (count < defaultVerifiedAmbulances.length) {
+      for (const amb of defaultVerifiedAmbulances) {
+        await Ambulance.updateOne(
+          { name: amb.name },
+          { $setOnInsert: amb },
+          { upsert: true }
+        );
+      }
     }
 
     // Retrieve only verified ambulance providers
     const providers = await Ambulance.find({ isVerified: true });
 
     // Calculate distance and format response
-    const nearby = providers
-      .map((p) => {
-        const pLat = p.latitude || (p.location && p.location.coordinates[1]) || 23.75;
-        const pLng = p.longitude || (p.location && p.location.coordinates[0]) || 90.38;
-        const distanceKm = calculateHaversineDistance(lat, lng, pLat, pLng);
-        const estMinutes = Math.max(3, Math.round(distanceKm * 2.5) + 3);
+    const allCalculated = providers.map((p) => {
+      const pLat = p.latitude || (p.location && p.location.coordinates[1]) || 22.215;
+      const pLng = p.longitude || (p.location && p.location.coordinates[0]) || 91.970;
+      const distanceKm = calculateHaversineDistance(lat, lng, pLat, pLng);
+      const estMinutes = Math.max(3, Math.round(distanceKm * 2.5) + 3);
 
-        return {
-          id: p._id,
-          name: p.name,
-          phone: p.phone,
-          driverName: p.driverName || 'Designated Driver',
-          address: p.address,
-          serviceArea: p.serviceArea || 'Dhaka Metropolitan',
-          type: p.type,
-          vehicleNo: p.vehicleNo || 'Fleet Unit',
-          fare: p.fare || '৳ 2,000',
-          facilities: p.facilities || [],
-          isAvailable: p.isAvailable,
-          isVerified: p.isVerified,
-          rating: p.rating || 4.8,
-          totalTrips: p.totalTrips || 0,
-          latitude: pLat,
-          longitude: pLng,
-          distanceKm: distanceKm,
-          estTime: `${estMinutes} mins`,
-          status: p.isAvailable ? 'Available Now' : 'On Emergency Trip',
-        };
-      })
+      return {
+        id: p._id,
+        name: p.name,
+        phone: p.phone,
+        driverName: p.driverName || 'Designated Driver',
+        address: p.address,
+        serviceArea: p.serviceArea || 'Regional Metropolitan',
+        type: p.type,
+        vehicleNo: p.vehicleNo || 'Fleet Unit',
+        fare: p.fare || '৳ 2,000',
+        facilities: p.facilities || [],
+        isAvailable: p.isAvailable,
+        isVerified: p.isVerified,
+        rating: p.rating || 4.8,
+        totalTrips: p.totalTrips || 0,
+        latitude: pLat,
+        longitude: pLng,
+        distanceKm: distanceKm,
+        estTime: `${estMinutes} mins`,
+        status: p.isAvailable ? 'Available Now' : 'On Emergency Trip',
+      };
+    });
+
+    let nearby = allCalculated
       .filter((p) => p.distanceKm <= radius)
       .sort((a, b) => {
-        // Sort available first, then closest distance
         if (a.isAvailable === b.isAvailable) {
           return a.distanceKm - b.distanceKm;
         }
         return a.isAvailable ? -1 : 1;
       });
 
+    let isExpandedRadar = false;
+    // If no provider within chosen radius (e.g. 3km or in remote location):
+    // Never leave the user with 0 ambulances! Return the nearest available regional fleet
+    if (nearby.length === 0 && allCalculated.length > 0) {
+      isExpandedRadar = true;
+      nearby = allCalculated
+        .sort((a, b) => a.distanceKm - b.distanceKm)
+        .slice(0, 6);
+    }
+
     res.status(200).json({
       success: true,
       count: nearby.length,
+      isExpandedRadar: isExpandedRadar,
       userLocation: { latitude: lat, longitude: lng },
       radiusKm: radius,
       data: nearby,
@@ -501,28 +692,36 @@ const getNearbyHospitals = async (req, res, next) => {
     }
 
     // Curated Verified Directory Fallback (with calculated distance & directions URL)
-    const hospitals = verifiedHospitalsDirectory
-      .map((h) => {
-        const dist = calculateHaversineDistance(lat, lng, h.latitude, h.longitude);
-        return {
-          id: `hosp-${h.name.replace(/\s+/g, '-').toLowerCase()}`,
-          name: h.name,
-          address: h.address,
-          phone: h.phone,
-          emergencyPhone: h.emergencyPhone,
-          latitude: h.latitude,
-          longitude: h.longitude,
-          distanceKm: dist,
-          estTime: `${Math.max(4, Math.round(dist * 2.5) + 3)} mins`,
-          openNow: h.openNow,
-          rating: h.rating,
-          type: h.type,
-          source: 'verified_directory',
-          directionsUrl: `https://www.google.com/maps/dir/?api=1&destination=${h.latitude},${h.longitude}`,
-        };
-      })
+    const allHospitals = verifiedHospitalsDirectory.map((h) => {
+      const dist = calculateHaversineDistance(lat, lng, h.latitude, h.longitude);
+      return {
+        id: `hosp-${h.name.replace(/\s+/g, '-').toLowerCase()}`,
+        name: h.name,
+        address: h.address,
+        phone: h.phone,
+        emergencyPhone: h.emergencyPhone,
+        latitude: h.latitude,
+        longitude: h.longitude,
+        distanceKm: dist,
+        estTime: `${Math.max(4, Math.round(dist * 2.5) + 3)} mins`,
+        openNow: h.openNow,
+        rating: h.rating,
+        type: h.type,
+        source: 'verified_directory',
+        directionsUrl: `https://www.google.com/maps/dir/?api=1&destination=${h.latitude},${h.longitude}`,
+      };
+    });
+
+    let hospitals = allHospitals
       .filter((h) => h.distanceKm <= radius)
       .sort((a, b) => a.distanceKm - b.distanceKm);
+
+    // If no hospital within tight radius, show closest regional referral facilities
+    if (hospitals.length === 0 && allHospitals.length > 0) {
+      hospitals = allHospitals
+        .sort((a, b) => a.distanceKm - b.distanceKm)
+        .slice(0, 8);
+    }
 
     res.status(200).json({
       success: true,
