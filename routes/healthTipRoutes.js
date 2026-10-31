@@ -6,11 +6,19 @@ const {
   createHealthTip,
   updateHealthTip,
   deleteHealthTip,
+  getAllBanners,
+  createBanner,
+  deleteBanner,
 } = require('../controllers/healthTipController');
 const { protect } = require('../middleware/authMiddleware');
 const { authorize } = require('../middleware/roleMiddleware');
 
-// Public endpoints
+// Banner endpoints (must precede /:id)
+router.get('/banners', getAllBanners);
+router.post('/banners', protect, authorize('admin'), createBanner);
+router.delete('/banners/:id', protect, authorize('admin'), deleteBanner);
+
+// Public health tip endpoints
 router.get('/', getAllHealthTips);
 router.get('/:id', getHealthTipById);
 

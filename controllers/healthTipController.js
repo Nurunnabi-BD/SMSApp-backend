@@ -1,4 +1,27 @@
 const HealthTip = require('../models/HealthTip');
+const HealthTipBanner = require('../models/HealthTipBanner');
+
+// Default initial banners
+const defaultBanners = [
+  {
+    title: 'Better Habits Healthier You',
+    image: 'assets/images/health_tips_slide1.jpeg',
+    order: 1,
+    isActive: true,
+  },
+  {
+    title: 'Daily Nutrition & Wellness',
+    image: 'assets/images/health_tips_slide2.jpeg',
+    order: 2,
+    isActive: true,
+  },
+  {
+    title: 'Mental Health & Deep Sleep',
+    image: 'assets/images/health_tips_slide3.jpeg',
+    order: 3,
+    isActive: true,
+  },
+];
 
 // Default initial health tips matching user UI design
 const defaultHealthTips = [
@@ -248,10 +271,99 @@ const deleteHealthTip = async (req, res) => {
   }
 };
 
+// @desc    Get all active banners
+// @route   GET /api/health-tips/banners
+// @access  Public
+const getAllBanners = async (req, res) => {
+  try {
+    let banners = await HealthTipBanner.find({ isActive: true }).sort({ order: 1, createdAt: -1 });
+
+    if (banners.length === 0) {
+      banners = await HealthTipBanner.insertMany(defaultBanners);
+    }
+
+    res.status(200).json({
+      success: true,
+      count: banners.length,
+      data: banners,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch banners: ' + error.message,
+    });
+  }
+};
+
+// @desc    Create banner (Admin only)
+// @route   POST /api/health-tips/banners
+// @access  Private/Admin
+const createBanner = async (req, res) => {
+  try {
+    const { title = '', image, linkUrl = '', order = 0 } = req.body;
+
+    if (!image) {
+      return res.status(400).json({
+        success: false,
+        message: 'Banner image is required.',
+      });
+    }
+
+    const banner = await HealthTipBanner.create({
+      title,
+      image,
+      linkUrl,
+      order,
+      isActive: true,
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Banner added successfully!',
+      data: banner,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Failed to create banner: ' + error.message,
+    });
+  }
+};
+
+// @desc    Delete banner (Admin only)
+// @route   DELETE /api/health-tips/banners/:id
+// @access  Private/Admin
+const deleteBanner = async (req, res) => {
+  try {
+    const banner = await HealthTipBanner.findById(req.params.id);
+    if (!banner) {
+      return res.status(404).json({
+        success: false,
+        message: 'Banner not found.',
+      });
+    }
+
+    await banner.deleteOne();
+
+    res.status(200).json({
+      success: true,
+      message: 'Banner deleted successfully!',
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Failed to delete banner: ' + error.message,
+    });
+  }
+};
+
 module.exports = {
   getAllHealthTips,
   getHealthTipById,
   createHealthTip,
   updateHealthTip,
   deleteHealthTip,
+  getAllBanners,
+  createBanner,
+  deleteBanner,
 };
