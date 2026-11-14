@@ -254,9 +254,51 @@ const sendMessage = async (req, res, next) => {
   }
 };
 
+// @desc    Delete a conversation and its messages
+// @route   DELETE /api/conversations/:id
+// @access  Private
+const deleteConversation = async (req, res, next) => {
+  try {
+    const conversation = await Conversation.findById(req.params.id);
+    if (!conversation) {
+      return res.status(404).json({
+        success: false,
+        message: 'Conversation not found.',
+      });
+    }
+
+    // Verify user is participant or admin
+    const isPatient = conversation.patient.toString() === req.user._id.toString();
+    const isDoctor = conversation.doctor.toString() === req.user._id.toString();
+    const isAdmin = req.user.role === 'admin';
+
+    if (!isPatient && !isDoctor && !isAdmin) {
+      return res.status(403).json({
+        success: false,
+        message: 'Not authorized to delete this conversation.',
+      });
+    }
+
+    // Delete all messages in this conversation
+    await Message.deleteMany({ conversation: conversation._id });
+
+    // Delete conversation
+    await conversation.deleteOne();
+
+    res.status(200).json({
+      success: true,
+      message: 'Conversation deleted successfully.',
+      data: { id: req.params.id },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getUserConversations,
   getOrCreateConversation,
   getConversationMessages,
   sendMessage,
+  deleteConversation,
 };
