@@ -9,9 +9,13 @@ const {
   getAllBanners,
   createBanner,
   deleteBanner,
+  askGeminiHealthAi,
 } = require('../controllers/healthTipController');
 const { protect } = require('../middleware/authMiddleware');
 const { authorize } = require('../middleware/roleMiddleware');
+
+// AI Health Assistant endpoint (powered by Gemini)
+router.post('/ask-ai', askGeminiHealthAi);
 
 // Banner endpoints (must precede /:id)
 router.get('/banners', getAllBanners);
