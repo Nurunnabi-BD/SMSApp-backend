@@ -593,12 +593,23 @@ Guidelines:
           parts: [{ text: `${systemPrompt}\n\nUser Question: ${trimmedQuestion}` }],
         });
 
-        const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
-        const response = await fetch(geminiUrl, {
+        // Call Gemini 3.5 Flash Lite API (Fastest and modern)
+        const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${apiKey}`;
+        let response = await fetch(geminiUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ contents }),
         });
+
+        // Fallback to flash-latest or 3.8-flash if 3.5-flash-lite is unavailable
+        if (!response.ok) {
+          const fallbackModelUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey}`;
+          response = await fetch(fallbackModelUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ contents }),
+          });
+        }
 
         if (response.ok) {
           const data = await response.json();
